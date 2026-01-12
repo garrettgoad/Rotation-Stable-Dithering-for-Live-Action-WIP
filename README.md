@@ -5,6 +5,7 @@ Work-in-progress notes and prototype for applying rotation-stable dithering to l
 This repo is mainly here to (1) publish the idea/process, (2) share what worked/what didn’t, and (3) help other recreate the effect.
 
 [![Comparison Video](https://img.youtube.com/vi/-sUPJ5IUkv0/0.jpg)](https://www.youtube.com/watch?v=-sUPJ5IUkv0)
+*Watch in 4k*
 
 ## What “rotation-stable” means (in this context)
 If the camera rotates, the dither pattern doesn’t “swim” over surfaces like a screen-space overlay. Instead, the pattern behaves as if it’s anchored to world directions and the camera is rotating *through it*.
