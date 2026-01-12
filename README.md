@@ -68,7 +68,7 @@ The current setup is a Blender compositor graph that:
 
 ## Related note: “Perceptual stability”
 I also wrote up a short note on a “perceptual stability” workaround (stable-looking motion without any tracking), based on vertically-pathed error diffusion in video:
-- See: [docs/perceptual-stability.md](docs/perceptual-stability.md)
+- See: [/perceptual-stability.md](/perceptual-stability.md)
 
 ## Future plans
 - Reduce temporal luminance instability (denoising, exposure handling, more robust luminance pipeline)
