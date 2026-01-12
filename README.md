@@ -86,4 +86,5 @@ This started as a “simple on paper” idea and turned into a good reminder tha
 
 ## License
 Code: MIT
+
 Media: CC BY 4.0 (unless noted otherwise)
