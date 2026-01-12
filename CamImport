@@ -1,0 +1,105 @@
+import bpy
+import csv
+from mathutils import Quaternion
+
+def import_gyroflow_rotation(
+    filepath,
+    camera_name="Camera",
+    start_frame=1,
+    camera_preset="sony_a6700"
+):
+    """
+    Import GyroFlow CSV rotation data into Blender camera.
+    
+    Tested presets:
+    - sony_a6700: Sony A6700 with IMU orientation ZYx
+    - sony_zve10m2: Sony ZV-E10 Mark II with IMU orientation zxY
+    
+    GyroFlow export settings:
+    - Original quaternions enabled
+    - One sample per frame
+    - Keep default IMU orientation (don't change it)
+    """
+    
+    scene = bpy.context.scene
+    
+    # Get or create camera
+    if camera_name in bpy.data.objects:
+        cam_obj = bpy.data.objects[camera_name]
+        cam_obj.animation_data_clear()
+    else:
+        cam_data = bpy.data.cameras.new(name=camera_name)
+        cam_obj = bpy.data.objects.new(camera_name, cam_data)
+        bpy.context.collection.objects.link(cam_obj)
+    
+    cam_obj.rotation_mode = 'QUATERNION'
+    cam_obj.location = (0, 0, 0)
+    
+    keyframe_count = 0
+    
+    # Orientation correction quaternions
+    flip_x = Quaternion((0, 1, 0, 0))  # 180° around X
+    flip_z = Quaternion((0, 0, 0, 1))  # 180° around Z
+    
+    with open(filepath, 'r') as f:
+        reader = csv.DictReader(f)
+        
+        for row in reader:
+            csv_frame = int(row['frame'])
+            blender_frame = start_frame + csv_frame
+            
+            w = float(row['org_quat_w'])
+            x = float(row['org_quat_x'])
+            y = float(row['org_quat_y'])
+            z = float(row['org_quat_z'])
+            
+            if camera_preset == "sony_a6700":
+                # Sony A6700 - IMU orientation: ZYx
+                # Simple: raw quaternion with flip_z before
+                quat_converted = Quaternion((w, x, y, z))
+                quat_blender = flip_z @ quat_converted
+            
+            elif camera_preset == "sony_zve10m2":
+                # Sony ZV-E10 Mark II - IMU orientation: zxY
+                # Swap Y/Z, negate both, flip_x before and flip_z after
+                quat_converted = Quaternion((w, x, -z, -y))
+                quat_blender = flip_x @ quat_converted @ flip_z
+            
+            else:
+                # Default: try raw with flip_z
+                quat_converted = Quaternion((w, x, y, z))
+                quat_blender = flip_z @ quat_converted
+            
+            cam_obj.rotation_quaternion = quat_blender
+            cam_obj.keyframe_insert(data_path="rotation_quaternion", frame=blender_frame)
+            keyframe_count += 1
+    
+    # Set linear interpolation for accuracy
+    try:
+        if cam_obj.animation_data and cam_obj.animation_data.action:
+            for fcurve in cam_obj.animation_data.action.fcurves:
+                for kf in fcurve.keyframe_points:
+                    kf.interpolation = 'LINEAR'
+    except:
+        pass
+    
+    print(f"✓ Imported {keyframe_count} keyframes to '{camera_name}'")
+    print(f"  Preset: {camera_preset}")
+    print(f"  Frame range: {start_frame} - {start_frame + keyframe_count - 1}")
+    
+    return cam_obj
+
+
+# ============================================
+# Change settings below
+# ============================================
+
+# Use raw string (r"...") for Windows paths
+GYROFLOW_CSV = r"D:\path\to\your\export.csv"
+
+cam = import_gyroflow_rotation(
+    GYROFLOW_CSV,
+    camera_name="GyroCamera",
+    start_frame=1,
+    camera_preset="sony_a6700"  # or "sony_zve10m2"
+)
