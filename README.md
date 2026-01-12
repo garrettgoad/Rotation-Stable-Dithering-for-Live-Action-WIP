@@ -5,6 +5,7 @@ Work-in-progress notes and prototype for applying rotation-stable dithering to l
 This repo is mainly here to (1) publish the idea/process, (2) share what worked/what didn’t, and (3) help other recreate the effect.
 
 [![Comparison Video](https://img.youtube.com/vi/-sUPJ5IUkv0/0.jpg)](https://www.youtube.com/watch?v=-sUPJ5IUkv0)
+
 *Watch in 4k*
 
 ## What “rotation-stable” means (in this context)
